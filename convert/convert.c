@@ -1,7 +1,7 @@
  #define FIRST  1 //The number of the first frame
  #define STEP   3 
  #define LAST 100 //The number of the last frame
- #define INFILE  "vid_source/0004.png" //Must contain the number of the first frame
+ #define INFILE  "vid_source/0001.png" //Must contain the number of the first frame
  #define INNR    11 //first character that counts up in INFILE
  #define OUTFILE "../vid0/IMG_0000.565"
  #define OUTNR   12 //first character that counts up in OUTFILE (4 digits)
