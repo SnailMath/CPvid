@@ -3,8 +3,9 @@
 
 namespace Video{
     struct VideoInfo {
-        char folder[5];
-        char name[100];
+        char folder[12]; // \fls0\vid0
+        //char folder;
+        char name[64];
         char description[100];
         //char director[100];
     };
@@ -12,5 +13,5 @@ namespace Video{
     extern struct VideoInfo videos[MAX_VIDEOS];
     extern int numVideos;
     void LoadVideoInfo();
-    bool VideoInfoParse(int fd, VideoInfo video);
+    bool VideoInfoParse(int fd, VideoInfo *video);
 }
