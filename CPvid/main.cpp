@@ -119,9 +119,6 @@ void main(){
 	//        loadvideo(vid);
 	//    }
 	//}
-	//if (select.ShowDialog()==GUIDialog::DialogResultOK){
-	//    return;
-	//}
   //}
 }
 
