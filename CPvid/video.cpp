@@ -97,7 +97,7 @@ namespace Video{
         uint16_t mode = 0;
         while(*info >= '0' && *info <= '9')
             mode = (mode*10) + (*info++ - '0');
-        if (h==0) return false;
+        //if (mode==0) return false;
         *((uint16_t*)(video->mode)) = mode;
         
         while((*info=='\r')||(*info=='\n')) info++;
