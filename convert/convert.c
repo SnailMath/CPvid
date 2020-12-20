@@ -1,10 +1,13 @@
  #define FIRST  1 //The number of the first frame
  #define STEP   3 
- #define LAST 100 //The number of the last frame
+ #define LAST 498 //The number of the last frame
  #define INFILE  "vid_source/0001.png" //Must contain the number of the first frame
  #define INNR    11 //first character that counts up in INFILE
  #define OUTFILE "../vid0/IMG_0000.565"
+ #define VID_TXT "../vid0/video.txt"
  #define OUTNR   12 //first character that counts up in OUTFILE (4 digits)
+
+ #define DESCRIPTION "Video\n%dx%d\nThis is a video."
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -12,7 +15,7 @@
 #define count(str,nr) if(str[nr]>'9'){str[nr]-=10; str[nr-1]++;} 
 #define countUp(str,nr,step) str[nr+3]+=step; count(str,nr+3) count(str,nr+2) count(str,nr+1) count(str,nr)
 
-void convert(char *in, char *out );
+void convert(char *in, char *out, int vid_txt );
 
 int main(int argc, char *argv[]){
 
@@ -25,7 +28,7 @@ int main(int argc, char *argv[]){
 	int innr       = INNR;
 	while (i<=LAST){
 		printf("convert(\"%s\", \"%s\");\n",infile, outfile);
-		convert(infile, outfile);
+		convert(infile, outfile, i==FIRST);
 
 		//Count up the file names
 		countUp(outfile,outnr,1)
@@ -38,11 +41,11 @@ int main(int argc, char *argv[]){
 	infile[innr+2] = 'd';
 	infile[innr+3] = 'e';
 	printf("convert(\"%s\", \"%s\"); //The QR-Code at the and.\n",infile, outfile);
-	convert(infile, outfile );
+	convert(infile, outfile, 0 );
 }
 
 
-void convert(char *in, char *out ){
+void convert(char *in, char *out ,int vid_txt){
 	int w,h,c;
 	unsigned char *img = stbi_load(in, &w, &h, &c, 3);
 	if (img == NULL){
@@ -50,6 +53,13 @@ void convert(char *in, char *out ){
 		return;
 	}
 	printf("%s w:%d h:%d c:%d\n",in,w,h,c);
+	if (vid_txt) { //If we have to create video.txt
+		FILE *vidtxt;
+		vidtxt = fopen(VID_TXT,"wb");
+		fprintf(vidtxt, DESCRIPTION ,w,h);
+		printf("Video\n%dx%d\nThis is a video.",w,h);
+		fclose (vidtxt);
+	}
 
 	FILE *fp;
 	fp = fopen(out,"wb");
