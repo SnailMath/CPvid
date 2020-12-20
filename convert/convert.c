@@ -1,22 +1,8 @@
- #define FIRST  1 //The number of the first frame
- #define STEP   3 
- #define LAST 498 //The number of the last frame
- #define INFILE  "vid_source/0001.png" //Must contain the number of the first frame
- #define INNR    11 //first character that counts up in INFILE
- #define OUTFILE "../vid0/IMG_0000.565"
- #define VID_TXT "../vid0/video.txt"
- #define OUTNR   12 //first character that counts up in OUTFILE (4 digits)
-
- #define DESCRIPTION "Video\n%dx%d\nThis is a video."
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-//#define count(str,nr) if(str[nr]>'9'){str[nr]-=10; str[nr-1]++;} 
-//#define countUp(str,nr,step) str[nr+3]+=step; count(str,nr+3) count(str,nr+2) count(str,nr+1) count(str,nr)
-
 #define strToInt(s,x) if(s!=NULL){x = 0;for(int i=0;(s[i]>='0'&&s[i]>='0');x=(x*10)+s[i++]-'0'){}}
-#define cleanf(x) for(int i=-1;x[++i]!=0;x[i]=(x[i]=='%'?'/':x[i])){}
 
 int convert565(char *in, char *out, int vid_txt );
 void usage(char *argv[]);
@@ -30,13 +16,11 @@ int       last    = 100;
 char *str_step    = NULL;    //The size of the steps between frames (e.g 1,4,7,10,...)
 int       step    =   3;
 char *description = NULL;    //The description of the video
-char desdefault[64];
 char *name        = "Video"; //The name of the video
 char *arg_in      = NULL;    //The path of the input file(s), format string (contains %04d)
 char *arg_out     = NULL;    //The path of the output folder
 
 int main(int argc, char *argv[]){
-//    if(argc==1){usage(argv);return 0;} //No arguments specified
     for (int i=1; i<argc; i++){
         if      (strcmp("-p",argv[i])==0) mode = 565;
         else if (strcmp("-g",argv[i])==0) mode = 256;
@@ -119,24 +103,9 @@ int main(int argc, char *argv[]){
         }
     }
     
-    if (description==NULL){
-    //    int i=0; int j=0;
-    //    while (arg_in[i]!=0&&i<62){
-    //        desdefault[j]=arg_in[i];
-    //        if(arg_in[i]=='%') //add a % so there is no format identifier.
-    //            desdefault[++j]='%';
-    //        i++;j++;
-    //    }
-    //    desdefault[i+1]=0;
-    //    description = desdefault;
+    if (description==NULL)
         description = arg_in;
-    //} else {
-    //    //Clean the variables from format strings. (replace % with /)
-    //    cleanf(description);
-    }
-    //Clean the variables from format strings. (replace % with /)
-    //cleanf(name);
-    cleanf(arg_out);
+    //cleanf(arg_out);
 
 
 /////////The actual converting
@@ -155,16 +124,15 @@ int main(int argc, char *argv[]){
     
     	int current = first;
     	char outfile[strlen(arg_out)+10+1]; //The filename is 9 digits ("/0000.565") or 10 digits ("/video.256") (And 0 terminator)
-    	char  infile[strlen(arg_in )+ 5+1]; //The number in the filename cannot be longer than 5 digits.
-    	char str_number[5];                 //The 4 digit number (and terminating 0)
+    	char  infile[strlen(arg_in )+ 6+1]; //The number in the filename cannot be longer than 8 digits. (10000000 is 6 digits shorter than %d
     
     	while (current<=last){
 	        sprintf(infile, arg_in, current);
     	    sprintf(outfile,"%s/%04d.565",arg_out,current);
 	        if (verbose)
         		printf("convert565(\"%s\", \"%s\");\n",infile, outfile);
-    		convert565(infile, outfile, current==FIRST);
-    		current+=STEP;
+    		convert565(infile, outfile, current==first);
+    		current+=step;
     	}
     }
     else{
@@ -185,6 +153,7 @@ args:\n\
        (default frames: 1, 4, 7, 10, 13, ... , 94, 97, 100 )\n\
   -n NAME    The name of the video\n\
   -d DESC    The description of the video\n\
+  -v         verbose (you do not need -V)\n\
   -g         input file is a single .gif animation\n\
   -p         input file is a sequence of .png or .jpg files (default)\n\
              use %%04s in the filename as a replacement for\n\
@@ -199,7 +168,8 @@ so do not run this on a server.)\n\
 \n",argv[0],argv[0]);
 }
 
-
+//Convert the png or jpg file *in to the binary file *out (in 565 format)
+//Create the video.txt file, if vid_txt != 0
 int convert565(char *in, char *out ,int vid_txt){
 	int w,h,c;
 	unsigned char *img = stbi_load(in, &w, &h, &c, 3);
@@ -234,10 +204,7 @@ int convert565(char *in, char *out ,int vid_txt){
 		strcat(vidtxt,"x");
 		strcat(vidtxt,str_h);
 		strcat(vidtxt,"\n565\n");
-		if (verbose==2) printf("Name\n");
 		strcat(vidtxt,description);
-		if (verbose==2) printf("Name\n");
-		
 		fprintf(file, "%s", vidtxt );
 		fclose (file);
 	}
@@ -251,7 +218,8 @@ int convert565(char *in, char *out ,int vid_txt){
 		unsigned char g = img[i*3+1];
 		unsigned char b = img[i*3+2];
 		uint16_t color  = ((r<<8) & 0b1111100000000000) | ((g<<3) & 0b0000011111100000) | ((b>>3) & 0b0000000000011111);
-		//printf("r:%02x g:%02x b:%02x %04x\n",r,g,b,color);
+		if (verbose==2)
+    		printf("r:%02x g:%02x b:%02x %04x\n",r,g,b,color);
 		fputc((color>>8) & 0x00ff , fp);
 		fputc((color   ) & 0x00ff , fp);
 		i++;
