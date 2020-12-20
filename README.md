@@ -6,7 +6,7 @@ A simple video player for the Classpad II
 This was inspired by the hollyhock projeckt from The6P4C.
 
 The program CPvid.hhk plays back videos on the Classpad 2. The videos need to be in a specific format in folders called vid0 to vid9.
-There is an example video in the folder vid0.
+There is an example video in the folder vid0. (You can download the example [here in the folder 'stuff'](https://drive.google.com/drive/u/0/folders/1T42uvVZ3Ps-bAghsFQeWIDF85kpocLed:wq)
 
 To convert videos, first use a program like blender to convert them to png sequences.
 I recommend scaling down the video to 160px wide. The videos cannot be larger than 320x528 but I recommend 160x160.
