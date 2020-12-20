@@ -1,14 +1,15 @@
 #include <appdef.hpp>
 #include <sdk/os/file.hpp>
 #include <sdk/os/mem.hpp>
+#include <sdk/os/string.hpp>
 #include <sdk/os/lcd.hpp>
 #include <sdk/os/debug.hpp>
 #include <sdk/os/gui.hpp>
 
 #include "video.hpp"
 
-#define vidw 160
-#define vidh  90
+//#define vidw 160
+//#define vidh  90
 
 #define PIXEL(x, y) (vram[(x) + (y) * width])
 
@@ -21,6 +22,7 @@ APP_AUTHOR("SnailMath")
 APP_VERSION("0.0.0")
 
 void blackScreen();
+void loadvideo(Video::VideoInfo *video);
 
 uint16_t *vram;
 int width, height;
@@ -98,36 +100,44 @@ void main(){
 	if (select.ShowDialog()==GUIDialog::DialogResultOK){
     	if (select.selectedVideo < Video::numVideos){
             struct Video::VideoInfo *vid = &Video::videos[select.selectedVideo];
-            uint16_t w = *((uint16_t*)(vid->w));
-            uint16_t h = *((uint16_t*)(vid->h));
-	        Debug_Printf(0,0,false,0,"w=%d h=%d",w,h);
-	        LCD_Refresh();
+            //uint16_t w = *((uint16_t*)(vid->w));
+            //uint16_t h = *((uint16_t*)(vid->h));
+	        //Debug_Printf(0,0,false,0,"w=%d h=%d",w,h);
+	        //LCD_Refresh();
 	        //Debug_WaitKey();
+	        loadvideo(vid);
 	    }
 	}
 }
 
 
-
-
-
-
-
-
-
-
-
-/*
-//extern "C"
-void oldmain() {
+void loadvideo(Video::VideoInfo *video) {
 	LCD_VRAMBackup();
 
 	vram = LCD_GetVRAMAddress();
 	LCD_GetSize(&width, &height);
+	
+	uint16_t vidw = *((uint16_t*)(video->w));
+    uint16_t vidh = *((uint16_t*)(video->h));
     
-	char filename[]="\\fls0\\mc\\IMG_0000.565"; //The name of the first file
-	#define filenameno 13 //The first digit of the 4-digit number (15-18 are the digits.)
-
+	uint8_t s = 2;
+	if((vidw*2>width) || (vidh*2>height)) s=1;
+    
+    uint16_t offx = (width -(vidw*s))>>1; //free space on the left to center the image
+    uint16_t offy = (height-(vidh*s))>>1; //free space on the top  to center the image
+    
+    uint8_t data[vidw*vidh*2];
+	uint8_t *image = (uint8_t*)vram + ((offx+(offy*width))*2);
+    
+	char filename[21]; //The name of the first file
+	strcpy(filename,video->folder);
+	strcat(filename,"\\IMG_");
+	int countdigit = 0; //The first character of the file path after IMG_ , this is the first of the four digits for counting up
+	while(filename[countdigit]!=0) countdigit++;
+	strcat(filename,"0000.565");
+	
+	
+	
 	while(1==1){
 		int fd = open(filename,OPEN_READ);
 		blackScreen();
@@ -136,8 +146,8 @@ void oldmain() {
 			break;
 		}
 	
-		uint8_t *image = (uint8_t*)vram + (((528-(vidh*2))/2)*320*2); //leafe 104 lines free at the top and bottom
-		uint8_t *data  = image + (vidh*960); //153600 ; //This is 3/4 through the image. The last byte of the data should be the last byte of the image. (the data is 1/4 the size of the image.)
+		//uint8_t *image = (uint8_t*)vram + (((528-(vidh*2))/2)*320*2); //leafe 104 lines free at the top and bottom
+		//uint8_t *data  = image + (vidh*960); //153600 ; //This is 3/4 through the image. The last byte of the data should be the last byte of the image. (the data is 1/4 the size of the image.)
 		int count = read(fd, (void*)data, (vidw*vidh*2)); //Read the whole frame
 		//Debug_Printf(0,41, true, 0, "Read %d bytes.", count);
 
@@ -145,16 +155,18 @@ void oldmain() {
 
 		//resize the image
 		int iy = 0;
-		while (iy<=vidh){
+		while (iy<vidh){
 			int ix = 0;
-			while (ix<=vidw){
+			while (ix<vidw){
 
-				uint16_t color = *((uint16_t*)( data + ((ix+(iy*160))*2) ));
+				uint16_t color = *((uint16_t*)( data + ((ix+(iy*vidw))*2) ));
 				
-				*((uint16_t*)( image + ( ((ix*2)+0) + (((iy*2)+0)*320) )*2 )) = color;
-				*((uint16_t*)( image + ( ((ix*2)+1) + (((iy*2)+0)*320) )*2 )) = color;
-				*((uint16_t*)( image + ( ((ix*2)+0) + (((iy*2)+1)*320) )*2 )) = color;
-				*((uint16_t*)( image + ( ((ix*2)+1) + (((iy*2)+1)*320) )*2 )) = color;
+				*((uint16_t*)( image + ( ((ix*s)+0) + (((iy*s)+0)*width) )*2 )) = color;
+				if (s==2) {
+				*((uint16_t*)( image + ( ((ix*2)+1) + (((iy*2)+0)*width) )*2 )) = color;
+				*((uint16_t*)( image + ( ((ix*2)+0) + (((iy*2)+1)*width) )*2 )) = color;
+				*((uint16_t*)( image + ( ((ix*2)+1) + (((iy*2)+1)*width) )*2 )) = color;
+				}
 	
 				ix++;
 			}
@@ -162,7 +174,7 @@ void oldmain() {
 		}
 
 
-		countUp(filename,filenameno)
+		countUp(filename,countdigit)
 	
 	
 		LCD_Refresh();
@@ -178,4 +190,3 @@ void blackScreen(){
 		vram[i++]=0;
 	}
 }
-*/
