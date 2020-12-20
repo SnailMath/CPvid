@@ -30,8 +30,6 @@ namespace Video{
                     strcat (video.folder, folder);
                     strcat(video.description,"\nFrom file ");
                     strcat(video.description,filename);
-                    strcat(video.name,filename);
-                    //Add the video to videos
                     videos[numVideos++]=video;
                 }
             }
@@ -48,32 +46,36 @@ namespace Video{
         
         
         unsigned int i = 0;
-        /*
         while((*info!='\r')&&(*info!='\n')&&(*info!='\0')&&i<10){
             video->name[i++]=*info++;
         }
         if(i==0) return false;
         video->name[i]=0; //Terminate the name
         while((*info=='\r')||(*info=='\n')) info++;
+
         //Parse the video dimensions
         uint16_t w = 0;
         while(*info >= '0' && *info <= '9')
             w = (w*10) + (*info++ - '0');
         if (w==0) return false;
+        *((uint16_t*)(video->w)) = w;
         if (*info++ != 'x') return false;
+
         uint16_t h = 0;
         while(*info >= '0' && *info <= '9')
             h = (h*10) + (*info++ - '0');
         if (h==0) return false;
+        *((uint16_t*)(video->h)) = h;
+        
         while((*info=='\r')||(*info=='\n')) info++;
+
         i=0; 
-        while (i<(sizeof(video->description))-1){
-            video->description[i++]=*info++;
+        while (i<sizeof(video->description)-1){
+            video->description[i]=*info;
             if (*info==0) break;
-        }
-             */  
-               
-               
+            info++;
+            i++;
+        }              
         return true;
     }
 }

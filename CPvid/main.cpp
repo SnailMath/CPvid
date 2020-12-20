@@ -96,6 +96,14 @@ class Select : public GUIDialog {
 void main(){
 	Select select;
 	if (select.ShowDialog()==GUIDialog::DialogResultOK){
+    	if (select.selectedVideo < Video::numVideos){
+            struct Video::VideoInfo *vid = &Video::videos[select.selectedVideo];
+            uint16_t w = *((uint16_t*)(vid->w));
+            uint16_t h = *((uint16_t*)(vid->h));
+	        Debug_Printf(0,0,false,0,"w=%d h=%d",w,h);
+	        LCD_Refresh();
+	        //Debug_WaitKey();
+	    }
 	}
 }
 
