@@ -46,7 +46,7 @@ namespace Video{
         
         
         unsigned int i = 0;
-        while((*info!='\r')&&(*info!='\n')&&(*info!='\0')&&i<10){
+        while((*info!='\r')&&(*info!='\n')&&(*info!='\0')&&i<sizeof(video->name)-1){
             video->name[i++]=*info++;
         }
         if(i==0) return false;
