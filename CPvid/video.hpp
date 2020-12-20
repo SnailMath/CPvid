@@ -3,11 +3,12 @@
 
 namespace Video{
     struct VideoInfo {
-        char folder[12]; // \fls0\vid0
+        char folder[64]; // \fls0\vid0
         char name[64];
         char description[100];
         char w[2]; //This should be an uint16_t pointer, but that does not work...
         char h[2]; 
+        char mode[2]; //The mode (either 565 [565-method] or 256 [256 colors] )
         //char director[100];
     };
     const int MAX_VIDEOS = 10;

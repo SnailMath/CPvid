@@ -9,35 +9,60 @@ namespace Video{
     int numVideos;
     void LoadVideoInfo(){
         numVideos = 0;
-        char folder[12]; //The name of the folder of the video
-        char filename[21]; //The name of the video info file
-        char nr[2]; nr[1]=0; //The number of the current folder (vid0 - vid9)
-        unsigned char i = 0;
-        while (i<10) { //Test all 10 folders from vid0 to vid9
-            memset(folder,   0, 12);
-            memset(filename, 0, 21);
-            strcat(folder,"\\fls0\\vid");
-            nr[0]='0'+i;
-            strcat(folder,nr); //append the number after the "vid"
-            strcat(filename, folder);
-            strcat(filename,"\\video.txt");
-            int fd = open(filename,OPEN_READ);
-            
-            if (fd>0){ //Video gefunden
-                struct VideoInfo video;             //Create new VidInfo
-                memset(&video, 0, sizeof(video));   //Fill it with 0s
-                if (VideoInfoParse(fd, &video)){     //Load info from file
-                    strcat (video.folder, folder);
-                    strcat(video.description,"\nFrom file ");
-                    strcat(video.description,filename);
-                    videos[numVideos++]=video;
+        char folder[64]; //The name of the folder of the video
+        char filename[64+10]; //The name of the video info file
+        wchar_t Lfoundname[64]; //The name of the file found by 'find'. This is a wchar_t (16bit pert character)
+        char     foundname[64];
+        wchar_t Lpathname[]=L"\\fls0\\*"; //The name of the file found by 'find'. This is a wchar_t (16bit pert character)
+        int findHandle;
+	
+        //Start the find
+        struct findInfo bufFindInfo;
+        if ( findFirst( Lpathname, &findHandle, Lfoundname, &bufFindInfo)>=0 ){
+            do{
+                memset(folder,   0, 12);
+                memset(filename, 0, 21);
+                
+                //Convert the filename from wide char to normal char
+                int i = 0;
+                while (i<64){ 
+                    const wchar_t c = Lfoundname[i];
+                    foundname[i] = c;
+                    if (c==0x0000) break;
+                    i++;
                 }
-            }
+                
+                strcat(folder, "\\fls0\\"); // "\fls0\"
+                strcat(folder, foundname);  // "\fls0\vid0"
+                
+                strcat(filename, folder);       // "\fls0\vid0"
+                strcat(filename,"\\video.txt"); // "\fls0\vid0\video.txt"
+                
+                int fd = open(filename,OPEN_READ);
             
-            close(fd);
-            i++;
-        }
-    
+                if (fd>0){ //Video gefunden*/
+                    struct VideoInfo video;             //Create new VidInfo
+                    memset(&video, 0, sizeof(video));   //Fill it with 0s
+                    
+                    //video.name[0] = fd>=0?'1':'0';
+                    
+                    //strcat(video.name, filename);
+                    
+                    if (VideoInfoParse(fd, &video)){     //Load info from file
+                        strcat (video.folder, folder);
+                        strcat(video.description,"\nFrom file ");
+                        strcat(video.description,filename);
+                        videos[numVideos++]=video;
+                    }
+                    
+                }
+            
+                close(fd);
+                i++;
+            }while( (findNext( findHandle, Lfoundname, &bufFindInfo)>=0) && (numVideos<MAX_VIDEOS) );
+        }//endif
+        //Close the find handle.
+        findClose(findHandle);  
     }
     bool VideoInfoParse(int fd, VideoInfo *video){
         char *info;
@@ -66,6 +91,14 @@ namespace Video{
             h = (h*10) + (*info++ - '0');
         if (h==0) return false;
         *((uint16_t*)(video->h)) = h;
+
+	//Parse the mode (either 565(color in 565) or 256(256 different colors)
+        while((*info=='\r')||(*info=='\n')) info++;
+        uint16_t mode = 0;
+        while(*info >= '0' && *info <= '9')
+            mode = (mode*10) + (*info++ - '0');
+        if (h==0) return false;
+        *((uint16_t*)(video->mode)) = mode;
         
         while((*info=='\r')||(*info=='\n')) info++;
 
