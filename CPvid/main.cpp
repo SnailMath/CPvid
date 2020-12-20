@@ -27,6 +27,9 @@ void loadvideo(Video::VideoInfo *video);
 uint16_t *vram;
 int width, height;
 
+
+//int GlobalSelectedVideo; 
+
 class Select : public GUIDialog {
     public:
         //This var is public
@@ -40,6 +43,7 @@ class Select : public GUIDialog {
     	    close( GetRightX()-10-100, GetTopY()+45, GetRightX()-10, GetTopY()+45+35, "Close", CLOSE_EVENT_ID )
     	{
             selectedVideo = 0;
+            //GlobalSelectedVideo = selectedVideo; 
             Video::LoadVideoInfo();
 
             //Add videos to dropdown/
@@ -65,10 +69,20 @@ class Select : public GUIDialog {
 	    }
 
         virtual int OnEvent(GUIDialog_Wrapped *dialog, GUIDialog_OnEvent_Data *event){
-            if (event->GetEventID()==VID_NAMES_EVENT_ID&&(event->type&0xF)==0xD){
+            int eventID = event->GetEventID();
+            if (eventID==VID_NAMES_EVENT_ID&&(event->type&0xF)==0xD){
                 selectedVideo = event->data-1;
+                //GlobalSelectedVideo = selectedVideo; 
                 UpdateVideoInfo();
                 return 0;
+            }
+            if (eventID==PLAY_EVENT_ID){
+                if (selectedVideo < Video::numVideos){
+                    struct Video::VideoInfo *vid = &Video::videos[selectedVideo];
+                    loadvideo(vid);
+                    return 0;
+                }
+                
             }
             return GUIDialog::OnEvent(dialog, event);
         }
@@ -96,18 +110,19 @@ class Select : public GUIDialog {
 };
 
 void main(){
-  while (true){
+  //while (true){
 	Select select;
-	if (select.ShowDialog()==GUIDialog::DialogResultOK){
-    	if (select.selectedVideo < Video::numVideos){
-            struct Video::VideoInfo *vid = &Video::videos[select.selectedVideo];
-	        loadvideo(vid);
-	    }
-	}
-	if (select.ShowDialog()==GUIDialog::DialogResultOK){
-	    return;
-	}
-  }
+	select.ShowDialog();
+	//if (select.ShowDialog()==GUIDialog::DialogResultOK){
+    //	if (select.selectedVideo < Video::numVideos){
+    //        struct Video::VideoInfo *vid = &Video::videos[select.selectedVideo];
+	//        loadvideo(vid);
+	//    }
+	//}
+	//if (select.ShowDialog()==GUIDialog::DialogResultOK){
+	//    return;
+	//}
+  //}
 }
 
 
