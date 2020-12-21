@@ -4,6 +4,7 @@
 
 #define strToInt(s,x) if(s!=NULL){x = 0;for(int i=0;(s[i]>='0'&&s[i]>='0');x=(x*10)+s[i++]-'0'){}}
 
+int convert256(unsigned char *img, int w, int h, char *out, uint16_t *palette, int *pallen, int vid_txt);
 int convert565(char *in, char *out, int vid_txt );
 void usage(char *argv[]);
 
@@ -137,9 +138,211 @@ int main(int argc, char *argv[]){
     }
     else{
         printf("The gif mode is not implemented yet.\n");
+       
+    	char outfile[strlen(arg_out)+10+1]; //The filename is 9 digits ("/0000.565") or 10 digits ("/video.256") (And 0 terminator)
+
+        //The color palette
+        uint16_t palette[256]; //2 bytes are one color
+        int pallen = 0;                      //start out with 0 items.
+        memset(palette, 0, sizeof(palette)); //clear all colors to black
+
+        FILE *f = stbi__fopen(arg_in, "rb");
+        //unsigned char *result; //Probably actually an *stbi_uc
+        int w,h,c;
+        stbi__context s;        //The internal image stuff
+        stbi__start_file(&s,f); //Open the file to that internal image stuff
+        stbi__result_info ri;
+        stbi_uc *u = 0;         //The image data
+        stbi__gif g;            //The internal gif stuff
+        memset(&g, 0, sizeof(g));//(it needs to be empty, I think...)
+        STBI_NOTUSED(ri); //I have no idea.
+
+
+        //For every image in the gif
+        int current = 0;
+        while( u = stbi__gif_load_next(&s, &g, &c, 3, 0)){ //Load the next image, make sure it is no empty pointer.
+            if (u==(stbi_uc*)&s){
+                u=0; //stbi__gif_load_next returns s instead of u if it was the last frame.
+                if (verbose==2) fprintf(stderr,"Wait, stbi__gif_load_next rerurned &s instead of &u...\n");
+                break; //Break the while
+            }
+            //if (u) { //If we have an image
+                w=g.w;
+                h=g.h;
+                //because we want 3 layers, not 0 or 4
+                //u = stbi__convert_format(u, 4, 3, g.w, g.h);
+            //}
+            
+            
+            unsigned char *img = u; //Probably actually an *stbi_uc
+            /*
+            if (img == NULL){
+                fprintf(stderr,"Can't find \"%s\".\n",arg_in);
+                return -1;
+            }*/
+
+            //build the filename
+            sprintf(outfile,"%s/%04d.256",arg_out,current);
+
+            //Now use convert256 to convert the rgb values to 565 values do the palette stuff.
+            convert256(img, w, h, outfile, palette, &pallen, (current==0));
+
+
+            if(verbose||w>320||h>528) printf("%s w:%d h:%d c:%d\n",arg_in,w,h,c);
+            if(verbose) printf("Palette has %d colors.\n",pallen);
+            if(verbose==2)
+            printf("%02x%02x%02x %02x   %02x%02x%02x %02x   %02x%02x%02x %02x   %02x%02x%02x %02x\n",
+              img[ 0],img[ 1],img[ 2],img[ 3],
+              img[ 4],img[ 5],img[ 6],img[ 7],
+              img[ 8],img[ 9],img[10],img[11],
+              img[12],img[13],img[14],img[15]);
+
+            current++; //The next frame
+        } //while end
+        //All frames processed.
+        if(verbose){
+            printf("There are %d colors on the palette:\n",pallen);
+            int i=0; while (i<255){
+                    printf("\
+\033[48;2;%d;%d;%dm  \033[48;2;%d;%d;%dm  \033[48;2;%d;%d;%dm  \033[48;2;%d;%d;%dm  \
+\033[48;2;%d;%d;%dm  \033[48;2;%d;%d;%dm  \033[48;2;%d;%d;%dm  \033[48;2;%d;%d;%dm  ",
+                    palette[i+0]>>8 & 0b11111000, palette[i+0]>>3 & 0b11111100, palette[i+0]<<3 & 0b11111000,
+                    palette[i+1]>>8 & 0b11111000, palette[i+1]>>3 & 0b11111100, palette[i+1]<<3 & 0b11111000,
+                    palette[i+2]>>8 & 0b11111000, palette[i+2]>>3 & 0b11111100, palette[i+2]<<3 & 0b11111000,
+                    palette[i+3]>>8 & 0b11111000, palette[i+3]>>3 & 0b11111100, palette[i+3]<<3 & 0b11111000,
+                    palette[i+4]>>8 & 0b11111000, palette[i+4]>>3 & 0b11111100, palette[i+4]<<3 & 0b11111000,
+                    palette[i+5]>>8 & 0b11111000, palette[i+5]>>3 & 0b11111100, palette[i+5]<<3 & 0b11111000,
+                    palette[i+6]>>8 & 0b11111000, palette[i+6]>>3 & 0b11111100, palette[i+6]<<3 & 0b11111000,
+                    palette[i+7]>>8 & 0b11111000, palette[i+7]>>3 & 0b11111100, palette[i+7]<<3 & 0b11111000);
+         //palette[2*(i+0)+0]&0b11111000, ((palette[2*(i+0)+0]<<5)&0b11100000)|((palette[2*(i+0)+1]>>3)&0b00011100), (palette[2*(i+0)+1]<<3) & 0b11111000,
+                    if(i%32==32-8) printf("\033[0m\n");
+                    i+=8;
+            }
+        }
+        //Free the stbi__gif
+        //STBI_FREE(g.out);
+        //STBI_FREE(g.history);
+        //STBI_FREE(g.background);
+        //STBI_FREE(g.color_table);
+        fclose (f); //close the gif file
+
+        //store the color palette in a file
+	    if(verbose)
+	        printf("creating color palette file ");
+		FILE *file;
+		char filename[strlen(arg_out)+12+1]; // "/palette.txt" is 12 characters long.
+		strcpy(filename,arg_out);
+		strcat(filename,"/palette.bin");
+		if(verbose)
+            printf("%s\n",filename);
+		file = fopen(filename,"wb"); //open color palette file
+        for(int i=0;i<256;i++){
+            fputc(palette[i]>>8, file);
+            fputc(palette[i], file);
+        }
+        //fwrite((void*)palette,256,2,file);
+        fclose(file); //close color palette file
+
     }
 }
 
+//Converts an image from a rgba buffer to a file using a palette, updating the palette when needed (for the conversion of gif files)
+// *img     pointer to the image data
+// w        width of the image 
+// h        height of the image
+// *out     the filename of the output file
+// *palette pointer to a colormap (256 entries of uint16_t)
+// *pallen   length of the color palette (gets modified when entries are added to the palette)
+// vid_txt  info if video.txt needs to be created
+// returns  number of errors that occured, 0 if successfull, -1 if image too large or no image
+int convert256(
+    unsigned char *img, int w, int h,  char *out, 
+    uint16_t *palette, int *pallen,    int vid_txt){
+	if (img == NULL){
+		fprintf(stderr,"Nullpointer as an image? Why?\n");
+		return -1;
+	}
+	if(verbose||w>320||h>528)
+    	printf("w:%d h:%d\n",w,h);
+    if(w>320||h>528){
+        printf("The image is too large! (larger than 320x528)\n");
+        return -1;
+    }
+	if (vid_txt) { //If we have to create video.txt
+	    if(verbose)
+	        printf("creating file ");
+		FILE *file;
+		char filename[strlen(arg_out)+10+1]; // "/video.txt" is 10 characters long.
+		strcpy(filename,arg_out);
+		strcat(filename,"/video.txt");
+		if(verbose)
+            printf("%s\n",filename);
+		file = fopen(filename,"wb");
+		char vidtxt[256];
+		char str_w[4];
+		char str_h[4];
+		sprintf(str_w,"%d",w);
+		sprintf(str_h,"%d",h);
+		strcpy(vidtxt,name);
+		strcat(vidtxt,"\n");
+		strcat(vidtxt,str_w);
+		strcat(vidtxt,"x");
+		strcat(vidtxt,str_h);
+		strcat(vidtxt,"\n256\n"); //indicate, that we are using 256 colors (the colormap will be in a seperate file.
+		strcat(vidtxt,description);
+		fprintf(file, "%s", vidtxt );
+		fclose (file);
+	}
+
+	FILE *fp;
+	fp = fopen(out,"wb");
+
+    int error = 0;
+
+	unsigned long i = 0;
+	while (i<(w*h)){ //for each pixel
+        //convert the color to 565 first
+		unsigned char r = img[i*4  ];
+		unsigned char g = img[i*4+1];
+		unsigned char b = img[i*4+2];
+		uint16_t color  = ((r<<8) & 0b1111100000000000) | ((g<<3) & 0b0000011111100000) | ((b>>3) & 0b0000000000011111);
+		if (verbose==2)
+    		printf("r:%02x g:%02x b:%02x %04x\n",r,g,b,color);
+        //now we know the color, we need to find it in the palette
+        int index = 0;
+        int found = 0;
+        while (index < *pallen){
+            if (color == palette[index]){
+                if (verbose==2) printf("Found color \033[48;2;%d;%d;%dm  \033[0m %04x in the palette at %3d\n",r,g,b,color,index);
+                found = 1;
+                break;
+            }
+            index++;
+        }
+        //the serch is finished, either we found it, or we didn't found it (found=1 or found=0)
+        if (!found){ //if we did not found it
+            //we did not found it, so index points at the first empty element in the palette.
+            if (index==256) { //we've compared color 0-255, no match and the palette is full. ERROR!!!
+                fprintf(stderr, "Color %04x of pixel %3d/%3d can't be found in the palette.\nERROR!!! The video uses more than 256 colors.", color, (int)i%w, (int)i/w);
+                error++;
+            } else { // we didn't found it, but there is still space on the palette, so add it.
+                palette[index]=color; //Add it to the palette
+                (*pallen)++;          //the palette is now larger.
+                found = 1;            //The color is now a color on the palette.
+                if (verbose) printf("Added color \033[48;2;%d;%d;%dm  \033[0m %04x to the palette at %3d\n",r,g,b,color,index);
+            }
+        }
+        if(found){//if the color is on the palette, save the palette index in the file.
+    	    fputc(index , fp); //save the index in the palette, not the 
+        } else {
+    	    fputc(255, fp); //well, what should we do? we've already warned the user. 255 will be the last color on the list, if we have less than 256 colors, this will be black.
+        }
+
+		i++; //next pixel
+	}
+	fclose(fp);
+	return error;
+}
 
 void usage(char *argv[]){
 	fprintf(stderr, "Usage:\n\
