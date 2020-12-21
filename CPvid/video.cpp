@@ -52,6 +52,8 @@ namespace Video{
                         strcat (video.folder, folder);
                         strcat(video.description,"\nFrom file ");
                         strcat(video.description,filename);
+                        if(*((uint16_t*)video.mode)==256)
+                            strcat(video.description,"\nmode=256");
                         videos[numVideos++]=video;
                     }
                     
