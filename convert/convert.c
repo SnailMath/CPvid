@@ -127,9 +127,10 @@ int main(int argc, char *argv[]){
     	char outfile[strlen(arg_out)+10+1]; //The filename is 9 digits ("/0000.565") or 10 digits ("/video.256") (And 0 terminator)
     	char  infile[strlen(arg_in )+ 6+1]; //The number in the filename cannot be longer than 8 digits. (10000000 is 6 digits shorter than %d
     
+        int outNr = 0;
     	while (current<=last){
 	        sprintf(infile, arg_in, current);
-    	    sprintf(outfile,"%s/%04d.565",arg_out,current);
+    	    sprintf(outfile,"%s/%04d.565",arg_out,outNr++);
 	        if (verbose)
         		printf("convert565(\"%s\", \"%s\");\n",infile, outfile);
     		convert565(infile, outfile, current==first);
@@ -137,7 +138,7 @@ int main(int argc, char *argv[]){
     	}
     }
     else{
-        printf("The gif mode is not implemented yet.\n");
+        //printf("The gif mode is not implemented yet.\n");
        
     	char outfile[strlen(arg_out)+10+1]; //The filename is 9 digits ("/0000.565") or 10 digits ("/video.256") (And 0 terminator)
 
