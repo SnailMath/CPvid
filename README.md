@@ -22,7 +22,7 @@ disconnect the calculator from the pc and open hollyhock
 - Select your video in the dropdown and click "Play"
 - When the video finishes, press `Clear` to close it
 
-(You can download a longer example [here in the folder 'stuff'](https://drive.google.com/drive/u/0/folders/1T42uvVZ3Ps-bAghsFQeWIDF85kpocLed)
+(You can download a longer example [here in the folder 'stuff'](https://drive.google.com/drive/u/0/folders/1T42uvVZ3Ps-bAghsFQeWIDF85kpocLed), passwd: `123456`)
 
 ## converting videos
 - convert video to png sequence (Use blender for example. If your video was 30fps select step=3, so the exported video will have 10fps.
