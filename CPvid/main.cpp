@@ -27,12 +27,8 @@ void loadvideo(Video::VideoInfo *video);
 uint16_t *vram;
 int width, height;
 
-
-//int GlobalSelectedVideo; 
-
 class Select : public GUIDialog {
     public:
-        //This var is public
         int selectedVideo; 
         //The constructor
         Select() : GUIDialog( 
@@ -43,7 +39,6 @@ class Select : public GUIDialog {
     	    close( GetRightX()-10-100, GetTopY()+45, GetRightX()-10, GetTopY()+45+35, "Close", CLOSE_EVENT_ID )
     	{
             selectedVideo = 0;
-            //GlobalSelectedVideo = selectedVideo; 
             Video::LoadVideoInfo();
 
             //Add videos to dropdown/
@@ -55,7 +50,6 @@ class Select : public GUIDialog {
 			    vidNames.AddMenuItem(*(new GUIDropDownMenuItem(name, i+1, GUIDropDownMenuItem::FlagEnabled | GUIDropDownMenuItem::FlagTextAlignLeft)));
                 i++;
             }
-
             vidNames.SetScrollBarVisibility(GUIDropDownMenu::ScrollBarVisibleWhenRequired);
             AddElement(vidNames);
             AddElement(vidInfo);
@@ -72,7 +66,6 @@ class Select : public GUIDialog {
             int eventID = event->GetEventID();
             if (eventID==VID_NAMES_EVENT_ID&&(event->type&0xF)==0xD){
                 selectedVideo = event->data-1;
-                //GlobalSelectedVideo = selectedVideo; 
                 UpdateVideoInfo();
                 return 0;
             }
