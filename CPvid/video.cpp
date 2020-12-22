@@ -1,9 +1,5 @@
 #include "video.hpp"
 
-#include <sdk/os/mem.hpp>
-#include <sdk/os/string.hpp>
-#include <sdk/os/file.hpp>
-
 namespace Video{
     struct VideoInfo videos[MAX_VIDEOS];
     int numVideos;
@@ -20,12 +16,12 @@ namespace Video{
         struct findInfo bufFindInfo;
         if ( findFirst( Lpathname, &findHandle, Lfoundname, &bufFindInfo)>=0 ){
             do{
-                memset(folder,   0, 12);
-                memset(filename, 0, 21);
+                memset(folder,   0, sizeof(folder)  );
+                memset(filename, 0, sizeof(filename));
                 
                 //Convert the filename from wide char to normal char
-                int i = 0;
-                while (i<64){ 
+                unsigned int i = 0;
+                while (i<sizeof(foundname)){ 
                     const wchar_t c = Lfoundname[i];
                     foundname[i] = c;
                     if (c==0x0000) break;
@@ -37,28 +33,24 @@ namespace Video{
                 
                 strcat(filename, folder);       // "\fls0\vid0"
                 strcat(filename,"\\video.txt"); // "\fls0\vid0\video.txt"
-                
+               
+				//get the filesize
+				uint32_t fileSize = 0;
+				{
+					struct stat fileInfo;
+					stat(filename, &fileInfo);
+					fileSize = fileInfo.fileSize;
+				}
+
                 int fd = open(filename,OPEN_READ);
-            
-                if (fd>0){ //Video gefunden*/
-                    struct VideoInfo video;             //Create new VidInfo
-                    memset(&video, 0, sizeof(video));   //Fill it with 0s
-                    
-                    //video.name[0] = fd>=0?'1':'0';
-                    
-                    //strcat(video.name, filename);
-                    
-                    if (VideoInfoParse(fd, &video)){     //Load info from file
-                        strcat (video.folder, folder);
-                        strcat(video.description,"\nFrom file ");
-                        strcat(video.description,filename);
-                        if(*((uint16_t*)video.mode)==256)
-                            strcat(video.description,"\nmode=256");
-                        videos[numVideos++]=video;
+                if (fd>0){ //Video gefunden
+                    struct VideoInfo video;						//Create new VidInfo
+                    memset(&video, 0, sizeof(video));			//Fill it with 0s
+                    if (VideoInfoParse(fd, fileSize, &video)){	//Load info from file
+                        strcat (video.folder, folder);			//save folder
+                        videos[numVideos++]=video;				//Add the video to the list
                     }
-                    
                 }
-            
                 close(fd);
                 i++;
             }while( (findNext( findHandle, Lfoundname, &bufFindInfo)>=0) && (numVideos<MAX_VIDEOS) );
@@ -66,38 +58,40 @@ namespace Video{
         //Close the find handle.
         findClose(findHandle);  
     }
-    bool VideoInfoParse(int fd, VideoInfo *video){
+    bool VideoInfoParse(int fd, uint32_t fileSize, VideoInfo *video){
         char *info;
+		char *end;
         getAddr(fd, 0, (const void**)(&info));
+		end = info + fileSize;
+		
         //Copy the Video name
-        
-        
         unsigned int i = 0;
-        while((*info!='\r')&&(*info!='\n')&&(*info!='\0')&&i<sizeof(video->name)-1){
+        while((*info!='\r')&&(*info!='\n')&&(*info!='\0')&&i<sizeof(video->name)-1&&info<end){
             video->name[i++]=*info++;
         }
-        if(i==0) return false;
+		
+        if(i==0||info>=end) return false; //Return if no name
         video->name[i]=0; //Terminate the name
-        while((*info=='\r')||(*info=='\n')) info++;
+        while((*info=='\r')||(*info=='\n')) info++; //Skip the newline character
 
         //Parse the video dimensions
         uint16_t w = 0;
-        while(*info >= '0' && *info <= '9')
+        while(*info >= '0' && *info <= '9' && info<end)
             w = (w*10) + (*info++ - '0');
-        if (w==0) return false;
+        if (w==0 || info>=end) return false;
         *((uint16_t*)(video->w)) = w;
         if (*info++ != 'x') return false;
 
         uint16_t h = 0;
-        while(*info >= '0' && *info <= '9')
+        while(*info >= '0' && *info <= '9' && info<end)
             h = (h*10) + (*info++ - '0');
-        if (h==0) return false;
+        if (h==0 || info>=end) return false;
         *((uint16_t*)(video->h)) = h;
 
 	//Parse the mode (either 565(color in 565) or 256(256 different colors)
         while((*info=='\r')||(*info=='\n')) info++;
         uint16_t mode = 0;
-        while(*info >= '0' && *info <= '9')
+        while(*info >= '0' && *info <= '9' && info<end)
             mode = (mode*10) + (*info++ - '0');
         //if (mode==0) return false;
         *((uint16_t*)(video->mode)) = mode;
@@ -105,12 +99,14 @@ namespace Video{
         while((*info=='\r')||(*info=='\n')) info++;
 
         i=0; 
-        while (i<sizeof(video->description)-1){
-            video->description[i]=*info;
-            if (*info==0) break;
+        while ((i<sizeof(video->description)-1) && (info<end)){
+			if(*info=='\n' || ( *info>=32 && *info<=126 ) )
+	            video->description[i++]=*info;
+			if(*info==0 || *info==-1)
+				break;
             info++;
-            i++;
-        }              
+        } 
+		video->description[i]=0;
         return true;
     }
 }
