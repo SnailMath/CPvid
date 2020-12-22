@@ -15,7 +15,7 @@ int       first   =   1;
 char *str_last    = NULL;    //The number of the last  frame
 int       last    = 100;
 char *str_step    = NULL;    //The size of the steps between frames (e.g 1,4,7,10,...)
-int       step    =   3;
+int       step    =   1;
 char *description = NULL;    //The description of the video
 char *name        = "Video"; //The name of the video
 char *arg_in      = NULL;    //The path of the input file(s), format string (contains %04d)
@@ -352,9 +352,8 @@ args:\n\
   -i INPUT   Filename of input  file (format string)\n\
   -o OUTPUT  Filename of output file\n\
   -f FIRST   Starts from frame FIRST   (default   1)\n\
-  -s STEP    Converts every STEP frame (default   3)\n\
+  -s STEP    Converts every STEP frame (default   1)\n\
   -l LAST    Converts until this frame (default 100)\n\
-       (default frames: 1, 4, 7, 10, 13, ... , 94, 97, 100 )\n\
   -n NAME    The name of the video\n\
   -d DESC    The description of the video\n\
   -v         verbose (you do not need -V)\n\
@@ -364,11 +363,9 @@ args:\n\
              the 4 digit number. (or %%03s for 3 digits)\n\
 \n\
 Example:\n\
-    Convert png files from vid_source/0001.png to ../vid0/\n\
-    %s -p -i vid_source/%%04d.png -o ../vid0/ -f 1 -s 3 -l 100\n\
-\n\
-(The arguments are not filtered before they are passed to printf,\n\
-so do not run this on a server.)\n\
+    Convert png files 0001.png, 0004.png, 0007.png and 0010.png from \n\
+	video/png/ to video/out/\n\
+    %s -p -i video/png/%%04d.png -o video/out/ -f 1 -s 3 -l 10\n\
 \n",argv[0],argv[0]);
 }
 
