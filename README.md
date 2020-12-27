@@ -1,6 +1,9 @@
 # CPvid
 A simple video player for the Classpad II 
 
+_Click [here](https://github.com/SnailMath/CPvid/releases) to download the program. Place everything from inside the .zip file onto the flash of the calculator._
+
+
 (This requires [hollyhock-2](https://github.com/SnailMath/hollyhock-2) to be installed on the calculator.)
 
 This was inspired by the hollyhock projeckt from The6P4C.
