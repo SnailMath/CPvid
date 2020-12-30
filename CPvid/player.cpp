@@ -8,6 +8,7 @@
 namespace Player{
 uint16_t *vram;
 int width, height;
+int playSpeed = 4; //1 is fastest, 10 is slowest
 
 void loadvideo(Video::VideoInfo *video) {
 	LCD_VRAMBackup();
@@ -96,6 +97,14 @@ void loadvideo(Video::VideoInfo *video) {
 				else if (status==PAUSE)
 					status=STEP;
 			}
+			if(testKey(key1,key2,KEY_UP)){
+				if (playSpeed>1)
+					playSpeed--;
+			}
+			if(testKey(key1,key2,KEY_DOWN)){
+				if (playSpeed<10)
+					playSpeed++;
+			}
 		}
 	
 		//If the video should start from the beginning
@@ -137,7 +146,7 @@ void loadvideo(Video::VideoInfo *video) {
 				//break;
 			} else {
 				//File opened successfull
-				int count = read(fd, (void*)data, (vidw*vidh*(m256?1:2))); //Read the whole frame
+				read(fd, (void*)data, (vidw*vidh*(m256?1:2))); //Read the whole frame
 				close(fd);
 			}
 		}
@@ -171,7 +180,8 @@ void loadvideo(Video::VideoInfo *video) {
 		}
 
 		//Refresh the screen
-		LCD_Refresh();
+		for(int i=0; i<playSpeed;i++)
+			LCD_Refresh();
 	}
 
 	//LCD_Refresh();

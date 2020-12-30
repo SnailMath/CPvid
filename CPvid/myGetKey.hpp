@@ -42,11 +42,13 @@ enum Keys2 {
 
 
 inline bool testKey(uint32_t key1, uint32_t key2, Keys1 key){
+	(void)key2;
 	if (key1 & key) return true;
 	else return false;
 }
 
 inline bool testKey(uint32_t key1, uint32_t key2, Keys2 key){
+	(void)key1;
 	if (key2 & key) return true;
 	else return false;
 }

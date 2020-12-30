@@ -23,7 +23,7 @@ disconnect the calculator from the pc and open hollyhock
 (On the calc, go to "System", click "System" on the top left, select "Hollyhock-2 Laucher"
 - Select "Videoplayer" in the dropdown and click "Run"
 - Select your video in the dropdown and click "Play"
-- Press `EXE` to pause the video, left and right arrow to wind forward and backward.
+- Press `EXE` to pause the video, left and right arrow to wind forward and backward and up and down to change playback speed.
 - When the video finishes, the last frame stays on screen. Press `Clear` to close it or `EXE` to play it again.
 
 (You can download a longer example [here in the folder 'stuff'](https://drive.google.com/drive/u/0/folders/1T42uvVZ3Ps-bAghsFQeWIDF85kpocLed), passwd: `123456`)

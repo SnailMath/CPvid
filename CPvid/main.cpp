@@ -17,9 +17,9 @@
 
 
 APP_NAME("Videoplayer")
-APP_DESCRIPTION("A program to play videos on your calculator.")
+APP_DESCRIPTION("A program to play videos on your calculator. See github.com/SnailMath/CPvid for more info.")
 APP_AUTHOR("SnailMath")
-APP_VERSION("0.0.0")
+APP_VERSION("0.0.2")
 
 
 class Select : public GUIDialog {
@@ -27,7 +27,7 @@ class Select : public GUIDialog {
         int selectedVideo; 
         //The constructor
         Select() : GUIDialog( 
-            GUIDialog::Height95, GUIDialog::AlignTop, "SnailMath Videoplayer", GUIDialog::KeyboardStateNone ), 
+            GUIDialog::Height95, GUIDialog::AlignTop, "SnailMath Videoplayer 0.0.2", GUIDialog::KeyboardStateNone ), 
     	    vidNames( GetLeftX()+10, GetTopY()+10, GetRightX()-10, GetBottomY()-10, VID_NAMES_EVENT_ID),
     	    vidInfo( GetLeftX()+10, GetTopY()+90, GetRightX()-10, GetBottomY()-10, "No Videos where found. Use the program from github.com/SnailMath/CPvid to vonvert image sequences from .png to .565 format and place the films in the folders \"vid0/\" to \"vid9\" on the flash." ),
     	    play( GetLeftX()+10, GetTopY()+45, GetLeftX()+10+100, GetTopY()+45+35, "Play", PLAY_EVENT_ID ),
