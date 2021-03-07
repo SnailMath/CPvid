@@ -30,7 +30,7 @@ disconnect the calculator from the pc and open hollyhock
 
 ## converting videos
 - convert video to png sequence (Use blender for example. If your video was 30fps select step=3, so the exported video will have 10fps.
-Downscale it so it is 160px wide. The screen of the calc is 320x528, but videos up to 160x264 are scaled up by 2)
+Downscale it so it is 160px wide. The screen of the calc is 320x528, but videos up to 160x264 are scaled up by 2, I would recommend 160x90px)
 - place the png sequence in the folder convert/video/tamplate/png
 - if you want the smaller filesize, convert the image sequence to a gif animation (using gimp, open the first png file, click on `file->open` as layers and select everything else, click import, go to `file->export as` and use `template.gif` as the filename, click ok, select animated gif, click ok)
 - run convert.sh in the folder convert/video/template (before that, you need to `make` in the folder convert )
