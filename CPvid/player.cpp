@@ -8,7 +8,7 @@
 namespace Player{
 uint16_t *vram;
 int width, height;
-int playSpeed = 4; //1 is fastest, 10 is slowest
+int playSpeed = 1; //1 is fastest, 10 is slowest
 
 void loadvideo(Video::VideoInfo *video) {
 	LCD_VRAMBackup();
