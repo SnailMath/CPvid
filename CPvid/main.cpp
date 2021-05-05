@@ -19,7 +19,7 @@
 APP_NAME("Videoplayer")
 APP_DESCRIPTION("A program to play videos on your calculator. See github.com/SnailMath/CPvid for more info.")
 APP_AUTHOR("SnailMath")
-APP_VERSION("0.0.2")
+APP_VERSION("0.0.3")
 
 
 class Select : public GUIDialog {
