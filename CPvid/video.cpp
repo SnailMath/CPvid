@@ -9,12 +9,16 @@ namespace Video{
         char filename[64+10]; //The name of the video info file
         wchar_t Lfoundname[64]; //The name of the file found by 'find'. This is a wchar_t (16bit pert character)
         char     foundname[64];
-        wchar_t Lpathname[]=L"\\fls0\\*"; //The name of the file found by 'find'. This is a wchar_t (16bit pert character)
+        wchar_t *Lpathname[]={//The name of the file found by 'find'. This is a wchar_t (16bit pert character)
+			L"\\fls0\\*",
+			L"\\drv0\\*"
+		};
         int findHandle;
 	
         //Start the find
         struct findInfo bufFindInfo;
-        if ( findFirst( Lpathname, &findHandle, Lfoundname, &bufFindInfo)>=0 ){
+		for(unsigned int foldernr=0;foldernr<(sizeof(Lpathname)/sizeof(Lpathname[0]));foldernr++){
+        if ( findFirst( Lpathname[foldernr], &findHandle, Lfoundname, &bufFindInfo)>=0 ){
             do{
                 memset(folder,   0, sizeof(folder)  );
                 memset(filename, 0, sizeof(filename));
@@ -28,7 +32,14 @@ namespace Video{
                     i++;
                 }
                 
-                strcat(folder, "\\fls0\\"); // "\fls0\"
+                //strcat(folder, "\\fls0\\"); // "\fls0\" //this does not support different folders or drives...
+                i = 0;
+                while (i<sizeof(folder)){ 
+					const wchar_t c = Lpathname[foldernr][i];
+					if(c=='*') break;
+					folder[i] = c;
+					i++;
+				}
                 strcat(folder, foundname);  // "\fls0\vid0"
                 
                 strcat(filename, folder);       // "\fls0\vid0"
@@ -57,6 +68,7 @@ namespace Video{
         }//endif
         //Close the find handle.
         findClose(findHandle);  
+		}
     }
     bool VideoInfoParse(int fd, uint32_t fileSize, VideoInfo *video){
         char *info;
