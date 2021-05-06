@@ -24,7 +24,8 @@ void loadvideo(Video::VideoInfo *video) {
     uint16_t mode = *((uint16_t*)(video->mode)); 
     int      m256 = mode==256;
     
-	uint8_t s = 2;
+	uint8_t s = 3;
+	if((vidw*3>width) || (vidh*3>height)) s=2;
 	if((vidw*2>width) || (vidh*2>height)) s=1;
 
     uint16_t offx = (width -(vidw*s))>>1; //free space on the left to center the image
@@ -167,10 +168,17 @@ void loadvideo(Video::VideoInfo *video) {
 					    color = *((uint16_t*)( data + ((ix+(iy*vidw))*2) ));
    	             }
 					*((uint16_t*)( image + ( ((ix*s)+0) + (((iy*s)+0)*width) )*2 )) = color;
-					if (s==2) {
-					*((uint16_t*)( image + ( ((ix*2)+1) + (((iy*2)+0)*width) )*2 )) = color;
-					*((uint16_t*)( image + ( ((ix*2)+0) + (((iy*2)+1)*width) )*2 )) = color;
-					*((uint16_t*)( image + ( ((ix*2)+1) + (((iy*2)+1)*width) )*2 )) = color;
+					if (s>=2) {
+					 *((uint16_t*)( image + ( ((ix*s)+1) + (((iy*s)+0)*width) )*2 )) = color;
+					 *((uint16_t*)( image + ( ((ix*s)+0) + (((iy*s)+1)*width) )*2 )) = color;
+					 *((uint16_t*)( image + ( ((ix*s)+1) + (((iy*s)+1)*width) )*2 )) = color;
+					 if (s==3) {
+					  *((uint16_t*)( image + ( ((ix*s)+2) + (((iy*s)+0)*width) )*2 )) = color;
+					  *((uint16_t*)( image + ( ((ix*s)+2) + (((iy*s)+1)*width) )*2 )) = color;
+					  *((uint16_t*)( image + ( ((ix*s)+2) + (((iy*s)+2)*width) )*2 )) = color;
+					  *((uint16_t*)( image + ( ((ix*s)+1) + (((iy*s)+2)*width) )*2 )) = color;
+					  *((uint16_t*)( image + ( ((ix*s)+0) + (((iy*s)+2)*width) )*2 )) = color;
+					 }
 					}
 					ix++;
 				}
