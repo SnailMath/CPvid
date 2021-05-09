@@ -7,11 +7,11 @@ infile='example.mp4'	# the file you have (can be mp4 or something else, any fram
 
 filename='example'		# the name how output folder should be called
 vidname='Video'			# the name displayed in CPvid
-viddesc='My first YouTube Video. youtu.be/zx6yKF3q4-M'		# the description for CPvid
+viddesc='My first YouTube Video. youtu.be/zx6yKF3q4-M'		# the description that CPvid will display
 
-quality=3	#1=low quality(106x176px), 2=medium quality(160x264px), 3=high quality(320x528px)
-color=3		#1=low quality(256colors), 2=normal quality(65536colors) [3=create both]
-rotate=2	#0=no rotation, 2=rotate left, (1=rotate right, note: most apps use left rotation for landscape, so don't use right.)
+quality=2	#1=low quality(106x176px), 2=medium quality(160x264px), 3=high quality(320x528px)
+color=1		#1=low quality(256colors), 2=normal quality(65536colors) [3=create both]
+rotate=0	#0=no rotation, 2=rotate left, (1=rotate right, note: most apps use left rotation for landscape, so don't use right.)
 
 
 
