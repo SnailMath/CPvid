@@ -1,8 +1,14 @@
 #include "player.hpp"
 #include "myGetKey.hpp"
 
-
-#define countUp(str,nr, step) str[nr+3]+=step; count(str,nr+3) count(str,nr+2) count(str,nr+1)
+//countUp(str,nr,step) adds 'step' to the decimal 4 digit number in the string str and calls count to do the carrying.
+//step can be positive or negative.
+//1000s place: str[nr+0]
+// 100s place: str[nr+1]
+//  10s place: str[nr+2]
+//   1s place: str[nr+3]
+#define countUp(str,nr, step) str[nr+3]+=step; count(str,nr+3) count(str,nr+2) count(str,nr+1) 
+//count(str,nr) does the carrying for countUp(). Also works for subtraction.
 #define count(str,nr) if(str[nr]>'9'){str[nr]-=10; str[nr-1]++;} if(str[nr]<'0'){str[nr]+=10; str[nr-1]--;}
 
 namespace Player{
@@ -43,7 +49,7 @@ void loadvideo(Video::VideoInfo *video) {
         strcat(palname, "\\palette.bin");
         int fd = open(palname,OPEN_READ);
         read(fd, (void*)palette, 256*2);
-        close(fd);
+        close(fd);  
     }
 
 	char filename[64]; //The name of the first file
