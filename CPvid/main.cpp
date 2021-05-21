@@ -9,18 +9,10 @@
 #include "player.hpp"
 #include "video.hpp"
 
-
-//#define vidw 160
-//#define vidh  90
-
-#define PIXEL(x, y) (vram[(x) + (y) * width])
-
-
 APP_NAME("Videoplayer")
-APP_DESCRIPTION("A program to play videos on your calculator. See github.com/SnailMath/CPvid for more info.")
+APP_DESCRIPTION("Videoplayer for your calculator. See github.com/SnailMath/CPvid for more info. Now with sound ;-)")
 APP_AUTHOR("SnailMath")
-APP_VERSION("0.0.4")
-
+APP_VERSION("0.0.5")
 
 class Select : public GUIDialog {
     public:
@@ -29,7 +21,7 @@ class Select : public GUIDialog {
         Select() : GUIDialog( 
             GUIDialog::Height95, GUIDialog::AlignTop, "SnailMath Videoplayer 0.0.2", GUIDialog::KeyboardStateNone ), 
     	    vidNames( GetLeftX()+10, GetTopY()+10, GetRightX()-10, GetBottomY()-10, VID_NAMES_EVENT_ID),
-    	    vidInfo( GetLeftX()+10, GetTopY()+90, GetRightX()-10, GetBottomY()-10, "No Videos where found. Use the program from github.com/SnailMath/CPvid to vonvert image sequences from .png to .565 format and place the films in the folders \"vid0/\" to \"vid9\" on the flash." ),
+    	    vidInfo( GetLeftX()+10, GetTopY()+90, GetRightX()-10, GetBottomY()-10, "No Videos where found. Use the program from github.com/SnailMath/CPvid to convert videos from mp4 to .565 of .256 and place the folder onto the flash." ),
     	    play( GetLeftX()+10, GetTopY()+45, GetLeftX()+10+100, GetTopY()+45+35, "Play", PLAY_EVENT_ID ),
     	    close( GetRightX()-10-100, GetTopY()+45, GetRightX()-10, GetTopY()+45+35, "Close", CLOSE_EVENT_ID )
     	{
@@ -37,7 +29,6 @@ class Select : public GUIDialog {
             Video::LoadVideoInfo();
 
             //Add videos to dropdown/
-
             int i = 0;
             while (i<Video::numVideos){
                 struct Video::VideoInfo *vid = &Video::videos[i];
@@ -104,5 +95,4 @@ void main(){
 	Select select;
 	select.ShowDialog();
 }
-
 
