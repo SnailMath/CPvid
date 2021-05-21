@@ -40,7 +40,7 @@ See 'converting videos' for a turorial on how to convert your own videos to thes
 - see `playing videos` on how to play the video.
 
 ##Now with audio!
-- I had the idea to add audio. I know that this idea was stupid. Use an 8bit 11025 samples/second .wav file called `audio.wav`. 
+- I had the idea to add audio. I know that this idea was stupid. Use an 8bit 11025 samples/second mono .wav file called `audio.wav`. 
 - Video (10fps) is synced to wait for 1102.5 frames to be elapsed, or skip frames if video is lagging behind.
 - The fastest serial speed is 11520bps, but I change the SCBRR register from 7 to 0 to make it 8 times faster (922kbit/s).
 - 8 bytes are one sample, so we have 64 bits for pwm. So 6 bit audio is used (the last 2 bit of 8bit .wav are ignored).
