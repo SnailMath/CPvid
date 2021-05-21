@@ -19,7 +19,7 @@ class Select : public GUIDialog {
         int selectedVideo; 
         //The constructor
         Select() : GUIDialog( 
-            GUIDialog::Height95, GUIDialog::AlignTop, "SnailMath Videoplayer 0.0.2", GUIDialog::KeyboardStateNone ), 
+            GUIDialog::Height95, GUIDialog::AlignTop, "SnailMath Videoplayer 0.0.5", GUIDialog::KeyboardStateNone ), 
     	    vidNames( GetLeftX()+10, GetTopY()+10, GetRightX()-10, GetBottomY()-10, VID_NAMES_EVENT_ID),
     	    vidInfo( GetLeftX()+10, GetTopY()+90, GetRightX()-10, GetBottomY()-10, "No Videos where found. Use the program from github.com/SnailMath/CPvid to convert videos from mp4 to .565 of .256 and place the folder onto the flash." ),
     	    play( GetLeftX()+10, GetTopY()+45, GetLeftX()+10+100, GetTopY()+45+35, "Play", PLAY_EVENT_ID ),
