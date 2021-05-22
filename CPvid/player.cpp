@@ -91,7 +91,7 @@ void loadvideo(Video::VideoInfo *video) {
 			//Open the file
 			int fd = open(filename,OPEN_READ);
 			if (fd <= 0){
-				status=PAUSE;
+				status=END;
 				if(hasAudio)Audio::pause();
 			} else {
 				//File opened successfull
@@ -150,10 +150,14 @@ void loadvideo(Video::VideoInfo *video) {
 				break;
 			}
 			if(testKey(key1,key2,KEY_EXE)){//EXE
-				if(status==PLAY){//toggle play/pause
+				if(status==END){//if the video has ended, restart it.
+					frame=0;
+					status = PLAY;
+					if(hasAudio)Audio::play();
+				}else if(status==PLAY){//toggle play/pause
 					status = PAUSE; 
 					if(hasAudio)Audio::pause();
-				}else{
+				}else{//if(status==PAUSE){
 					status = PLAY;
 					if(hasAudio)Audio::play();
 				}

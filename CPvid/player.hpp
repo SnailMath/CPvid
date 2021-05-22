@@ -25,14 +25,8 @@ namespace Player{
 	};*/
 	enum STATUS {
 		PLAY,		//Is currently playing
-		PAUSE		//Is currently paused
-		//PAUSE2,		//Is currently paused, but frame number changed (after STEP or BACK)
-		//STOP,		//Is stopped (finished playing)
-		//START,		//Is stopped, but should start now ( go (back to) frame 0000 )
-		//STEP,		//The video is stopped, but it should advance one image
-		//BACK,		//The video is stopped, but it should reverse one image
-		//FORWARD,	//The video is running, but it should skip 10 frames
-		//BACKWARD	//The video is running, but it should go back 10 frames
+		PAUSE,		//Is currently paused
+		END		//Is currently paused because the video has ended
 	};
 
 }

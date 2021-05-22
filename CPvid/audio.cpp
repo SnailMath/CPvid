@@ -35,13 +35,23 @@ namespace Audio{
 	
 	bool init(const char* folder){
 		//build the filename
+		char   audiopath[64];
 		char   audioname[64];
-		strcpy(audioname, folder);
-		strcat(audioname, "\\audio.wav");
+		strcpy(audiopath, folder);
+		audiopath[1]='f'; //change path from \drv0 to \fls0 so play always audio from the flash, even when video is on the sdcard.
+		audiopath[2]='l';
+		audiopath[3]='s';
+		strcpy(audioname, audiopath);
+		strcat(audioname, "\\audio.wav"); // \fls0\videoname\audio.wav
 		//open the audio file
 		int audiofile = open(audioname,OPEN_READ);
-		if(audiofile<=0) //if we don't have an audio file, just return false
-			return false;
+		if(audiofile<=0){ //if we don't have an audio file, try another name:
+			strcpy(audioname, audiopath);
+			strcat(audioname, ".wav"); // \fls0\videoname.wav
+			audiofile = open(audioname,OPEN_READ);
+			if(audiofile<=0) //if we don't have an audio file, just return false
+				return false;
+		}
 		//get the addresses of each part of the audio file
 		for(int i=0;i<SOUNDLEN;i++)
 			getAddr(audiofile, i*1024*4, (const void**)&soundaddr[i]);
@@ -131,21 +141,33 @@ namespace Audio{
 		while(soundoffset<(time&0xfff));
 	}*/
 
+	uint8_t pwm[9] = {
+		0b00000000,
+		0b00000001,
+		0b00000011,
+		0b00000111,
+		0b00001111,
+		0b00011111,
+		0b00111111,
+		0b01111111,
+		0b11111111
+	};
+
 	extern "C"
 	void handleInterrupt(){
 		test++;
 		//check fi TDFE is set (Transmit FIFO Data Empty)		
 		if(SCIF::regTestBit(SCIF::TDFE) && sound_running){	//if we have space in the buffer AND are currently playing audio
 			unsigned char* buf = soundaddr[soundblock];	//look up where this block is in rom
-			unsigned char c = buf[soundoffset++];		//load first byte, aka 1 sample, split it into the 8 pwm bytes
-			SCIF::regWrite (SCIF::SCFTDR, c>>(3+2) );  c+=(1<<2);
-			SCIF::regWrite (SCIF::SCFTDR, c>>(3+2) );  c+=(1<<2);
-			SCIF::regWrite (SCIF::SCFTDR, c>>(3+2) );  c+=(1<<2);
-			SCIF::regWrite (SCIF::SCFTDR, c>>(3+2) );  c+=(1<<2);
-			SCIF::regWrite (SCIF::SCFTDR, c>>(3+2) );  c+=(1<<2);
-			SCIF::regWrite (SCIF::SCFTDR, c>>(3+2) );  c+=(1<<2);
-			SCIF::regWrite (SCIF::SCFTDR, c>>(3+2) );  c+=(1<<2);
-			SCIF::regWrite (SCIF::SCFTDR, c>>(3+2) );//c+=(1<<2);
+			unsigned char c = buf[soundoffset++]>>2;	//load first byte, aka 1 sample, use only 6 bit.
+			SCIF::regWrite (SCIF::SCFTDR, pwm[c>>3] );  c++; //split into 8 pwm bytes with c bits set
+			SCIF::regWrite (SCIF::SCFTDR, pwm[c>>3] );  c++;
+			SCIF::regWrite (SCIF::SCFTDR, pwm[c>>3] );  c++;
+			SCIF::regWrite (SCIF::SCFTDR, pwm[c>>3] );  c++;
+			SCIF::regWrite (SCIF::SCFTDR, pwm[c>>3] );  c++;
+			SCIF::regWrite (SCIF::SCFTDR, pwm[c>>3] );  c++;
+			SCIF::regWrite (SCIF::SCFTDR, pwm[c>>3] );  c++;
+			SCIF::regWrite (SCIF::SCFTDR, pwm[c>>3] );//c+=;
 			if(soundoffset>=1024*4){ //we are at the end of the current block
 				soundoffset=0;
 				soundblock++;
