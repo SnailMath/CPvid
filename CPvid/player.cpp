@@ -22,8 +22,9 @@ void loadvideo(Video::VideoInfo *video) {
 	uint16_t vidw = *((uint16_t*)(video->w));
 	uint16_t vidh = *((uint16_t*)(video->h)); 
     
-	uint16_t mode = *((uint16_t*)(video->mode)); 
-	int      m256 = mode==256;
+	uint16_t mode = *((uint16_t*)(video->mode)); //2 color, 256 color or 65536 (aka565) color
+	bool      m256 = mode==256; //the 256 color mode
+	bool      bw = mode==2; //the 2 color mode
 	#define speed 1102   //The audio has 11025 samples per second aka 1102.5 samples per frame, that means each frame takes 1102.5 samples.
 	#define frameToTime(frame) ((frame*2205)>>1) //calculate the current time (in samples) from the current frame number
 
@@ -31,6 +32,8 @@ void loadvideo(Video::VideoInfo *video) {
 	uint8_t s = 3;					//Assume: scale by 3
 	if((vidw*3>width) || (vidh*3>height)) s=2;	//If this is to big, make it 2
 	if((vidw*2>width) || (vidh*2>height)) s=1;	//If this is still to big, make it 1
+
+	if(mode==2) s=1; //dpn't scale in b/w mode!
 
 	uint16_t offx = (width -(vidw*s))>>1; //the free space on the left to center the image
 	uint16_t offy = (height-(vidh*s))>>1; //the free space on the top  to center the image
@@ -55,6 +58,8 @@ void loadvideo(Video::VideoInfo *video) {
 	while(filename[countdigit]!=0) countdigit++; //increase 'countdigit' so it points after the name of the folder
     	if(m256){
 		strcat(filename,"\\0000.256");
+    	}else if(bw){
+		strcat(filename,"\\0000.bin");
     	}else{
 		strcat(filename,"\\0000.565");
     	}
@@ -100,33 +105,50 @@ void loadvideo(Video::VideoInfo *video) {
 			}
 
 			//display the image
-			int iy = 0;
-			while (iy<vidh){
-				int ix = 0;
-				while (ix<vidw){
-					uint16_t color;
-					if (m256){
-						color = palette[data[ix+(iy*vidw)]];
-					}else{
-						color = *((uint16_t*)( data + ((ix+(iy*vidw))*2) ));
+			if(bw){ //black white image
+				int ix=0; int iy=0; int i=0;
+				while(iy<vidh){
+					uint16_t thisdata = data[i++];
+					uint16_t color = (thisdata&0x80)?0xffff:0x0000; //use black or white
+					uint8_t count = thisdata&0x7f; //the lower 7 bits are the amount
+					if(count==0)count=128; //0 means 128
+					while(count>0){
+						*((uint16_t*)( image + ( (ix+0) + ((iy+0)*width) )*2 )) = color;
+						ix++;
+						if(ix>=vidw){ix=0;iy++;}
+						count--;
 					}
-					*((uint16_t*)( image + ( ((ix*s)+0) + (((iy*s)+0)*width) )*2 )) = color;
-					if (s>=2) {
-						*((uint16_t*)( image + ( ((ix*s)+1) + (((iy*s)+0)*width) )*2 )) = color;
-						*((uint16_t*)( image + ( ((ix*s)+0) + (((iy*s)+1)*width) )*2 )) = color;
-						*((uint16_t*)( image + ( ((ix*s)+1) + (((iy*s)+1)*width) )*2 )) = color;
-						if (s==3) {
-							*((uint16_t*)( image + ( ((ix*s)+2) + (((iy*s)+0)*width) )*2 )) = color;
-							*((uint16_t*)( image + ( ((ix*s)+2) + (((iy*s)+1)*width) )*2 )) = color;
-							*((uint16_t*)( image + ( ((ix*s)+2) + (((iy*s)+2)*width) )*2 )) = color;
-							*((uint16_t*)( image + ( ((ix*s)+1) + (((iy*s)+2)*width) )*2 )) = color;
-							*((uint16_t*)( image + ( ((ix*s)+0) + (((iy*s)+2)*width) )*2 )) = color;
-						}//if(s==3)
-					}//if(s>2)
-					ix++;
-				}//while(ix<vidw)
-				iy++;
-			}//while(iy<vidh)
+				}
+			
+			}else{ //color image
+				int iy = 0;
+				while (iy<vidh){
+					int ix = 0;
+					while (ix<vidw){
+						uint16_t color;
+						if (m256){
+							color = palette[data[ix+(iy*vidw)]];
+						}else{
+							color = *((uint16_t*)( data + ((ix+(iy*vidw))*2) ));
+						}
+						*((uint16_t*)( image + ( ((ix*s)+0) + (((iy*s)+0)*width) )*2 )) = color;
+						if (s>=2) {
+							*((uint16_t*)( image + ( ((ix*s)+1) + (((iy*s)+0)*width) )*2 )) = color;
+							*((uint16_t*)( image + ( ((ix*s)+0) + (((iy*s)+1)*width) )*2 )) = color;
+							*((uint16_t*)( image + ( ((ix*s)+1) + (((iy*s)+1)*width) )*2 )) = color;
+							if (s==3) {
+								*((uint16_t*)( image + ( ((ix*s)+2) + (((iy*s)+0)*width) )*2 )) = color;
+								*((uint16_t*)( image + ( ((ix*s)+2) + (((iy*s)+1)*width) )*2 )) = color;
+								*((uint16_t*)( image + ( ((ix*s)+2) + (((iy*s)+2)*width) )*2 )) = color;
+								*((uint16_t*)( image + ( ((ix*s)+1) + (((iy*s)+2)*width) )*2 )) = color;
+								*((uint16_t*)( image + ( ((ix*s)+0) + (((iy*s)+2)*width) )*2 )) = color;
+							}//if(s==3)
+						}//if(s>2)
+						ix++;
+					}//while(ix<vidw)
+					iy++;
+				}//while(iy<vidh)
+			}//if color else black/white 
 		screenchanged=false; //the content of the vram matches now what it is supposed to.
 		//LCD_Refresh(); //do that further down...
 		}//if(screenchanged)

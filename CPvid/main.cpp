@@ -12,16 +12,16 @@
 APP_NAME("Videoplayer")
 APP_DESCRIPTION("Videoplayer for your calculator. See github.com/SnailMath/CPvid for more info. Now with sound ;-)")
 APP_AUTHOR("SnailMath")
-APP_VERSION("0.0.6")
+APP_VERSION("0.0.7")
 
 class Select : public GUIDialog {
     public:
         int selectedVideo; 
         //The constructor
         Select() : GUIDialog( 
-            GUIDialog::Height95, GUIDialog::AlignTop, "SnailMath Videoplayer 0.0.6", GUIDialog::KeyboardStateNone ), 
+            GUIDialog::Height95, GUIDialog::AlignTop, "SnailMath Videoplayer 0.0.7", GUIDialog::KeyboardStateNone ), 
     	    vidNames( GetLeftX()+10, GetTopY()+10, GetRightX()-10, GetBottomY()-10, VID_NAMES_EVENT_ID),
-    	    vidInfo( GetLeftX()+10, GetTopY()+90, GetRightX()-10, GetBottomY()-10, "No Videos where found. Use the program from github.com/SnailMath/CPvid to convert videos from mp4 to .565 of .256 and place the folder onto the flash." ),
+    	    vidInfo( GetLeftX()+10, GetTopY()+90, GetRightX()-10, GetBottomY()-10, "No Videos where found. Use the program from github.com/SnailMath/CPvid to convert videos from mp4 to .565 of .256 and place the folder onto the flash. Now with a black/white mode." ),
     	    play( GetLeftX()+10, GetTopY()+45, GetLeftX()+10+100, GetTopY()+45+35, "Play", PLAY_EVENT_ID ),
     	    close( GetRightX()-10-100, GetTopY()+45, GetRightX()-10, GetTopY()+45+35, "Close", CLOSE_EVENT_ID )
     	{
