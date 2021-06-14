@@ -38,9 +38,10 @@ namespace Audio{
 		char   audiopath[64];
 		char   audioname[64];
 		strcpy(audiopath, folder);
-		audiopath[1]='f'; //change path from \drv0 to \fls0 so play always audio from the flash, even when video is on the sdcard.
-		audiopath[2]='l';
-		audiopath[3]='s';
+		//sd card does not work like that...
+		//audiopath[1]='f'; //change path from \crd0 to \fls0 so play always audio from the flash, even when video is on the sdcard.
+		//audiopath[2]='l';
+		//audiopath[3]='s';
 		strcpy(audioname, audiopath);
 		strcat(audioname, "\\audio.wav"); // \fls0\videoname\audio.wav
 		//open the audio file

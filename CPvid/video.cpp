@@ -10,8 +10,9 @@ namespace Video{
         wchar_t Lfoundname[64]; //The name of the file found by 'find'. This is a wchar_t (16bit pert character)
         char     foundname[64];
         wchar_t *Lpathname[]={//The name of the file found by 'find'. This is a wchar_t (16bit pert character)
-			L"\\fls0\\*",
-			L"\\drv0\\*"
+			L"\\fls0\\*",		//root of the flash
+		      //L"\\crd0\\*",		//root of the sd card, does not work this way...
+			L"\\fls0\\CPvid\\*"	//folder CPvid/ on the sd card
 		};
         int findHandle;
 	
