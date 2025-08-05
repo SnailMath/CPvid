@@ -3,7 +3,6 @@ A simple video player for the Classpad II
 
 _Click [here](https://github.com/SnailMath/CPvid/releases) to download the program. Place everything from inside the .zip file onto the flash of the calculator._
 
-
 (This requires [hollyhock-2](https://github.com/SnailMath/hollyhock-2) to be installed on the calculator, at least version 1.0.2)
 
 This was inspired by the hollyhock projeckt from The6P4C.
@@ -28,6 +27,9 @@ See 'converting videos' for a turorial on how to convert your own videos to thes
 (You can download a longer example [here in the folder 'stuff'](https://drive.google.com/drive/u/0/folders/1T42uvVZ3Ps-bAghsFQeWIDF85kpocLed), passwd: `123456`)
 
 ## converting videos
+
+*info: you can use the new video converter, which consists of a single HTML file from the folder `convert 2.0`, instead of the old video converter which is explained in the following paragraph.*
+
 - download [stb_image.h](https://github.com/nothings/stb/blob/master/stb_image.h) into the folder convert/ (click on raw, right click, save as)
 - run `make` in the folder convert/ 
 - You need the video you want in any file format, for example in .mp4 format.
